@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/onur1/toposort"
+	"github.com/tetsuo/toposort"
 )
 
 func TestGraph(t *testing.T) {

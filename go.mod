@@ -1,3 +1,3 @@
-module github.com/onur1/toposort
+module github.com/tetsuo/toposort
 
 go 1.18

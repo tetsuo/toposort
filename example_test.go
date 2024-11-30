@@ -3,7 +3,7 @@ package toposort_test
 import (
 	"fmt"
 
-	"github.com/onur1/toposort"
+	"github.com/tetsuo/toposort"
 )
 
 func ExampleSort() {

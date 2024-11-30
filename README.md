@@ -12,7 +12,7 @@
 To install the `toposort` package, use the following command:
 
 ```sh
-go get github.com/onur1/toposort
+go get github.com/tetsuo/toposort
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ package main
 
 import (
     "fmt"
-    "github.com/onur1/toposort"
+    "github.com/tetsuo/toposort"
 )
 
 func main() {
