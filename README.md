@@ -1,11 +1,6 @@
 # toposort
 
-**toposort** provides functionality to perform topological sorting on directed acyclic graphs (DAGs). Topological sorting is the linear ordering of vertices such that for every directed edge `U → V`, vertex `U` comes before vertex `V` in the ordering. This is particularly useful in scenarios like task scheduling, resolving symbol dependencies in linkers, and determining compilation order in programming languages.
-
-## Features
-
-- **Topological Sorting**: Generates a linear ordering of vertices in a DAG.
-- **Cycle Detection**: Identifies cycles in the graph and returns an error if a cycle is detected, as topological sorting is only possible for acyclic graphs.
+**toposort** performs topological sorting on directed acyclic graphs (DAGs). Topological sorting is the linear ordering of vertices such that for every directed edge `U → V`, vertex `U` comes before vertex `V` in the ordering.
 
 ## Installation
 
