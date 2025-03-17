@@ -16,26 +16,50 @@ go get github.com/tetsuo/toposort
 package main
 
 import (
-    "fmt"
-    "github.com/tetsuo/toposort"
+	"fmt"
+
+	"github.com/tetsuo/toposort"
 )
 
+type exampleVertex[K comparable] struct {
+	afters []K
+	id     K
+}
+
+func (v *exampleVertex[K]) Afters() []K {
+	return v.afters
+}
+
+func (v *exampleVertex[K]) ID() K {
+	return v.id
+}
+
 func main() {
-    // Define the relationships in the graph
-    relations := map[string]string{
-        "Barbara": "Nick",
-        "Nick":    "Sophie",
-        "Sophie":  "Jonas",
-    }
+	relations := map[string]string{
+		"Barbara": "Nick",
+		"Nick":    "Sophie",
+		"Sophie":  "Jonas",
+	}
 
-    // Perform topological sorting
-    sorted, err := toposort.Sort(relations)
-    if err != nil {
-        fmt.Println("Error:", err)
-        return
-    }
+	vertices := make(map[string]*exampleVertex[string])
 
-    fmt.Println("Sorted order:", sorted)
+	for c, p := range relations {
+		if _, ok := vertices[c]; !ok {
+			vertices[c] = &exampleVertex[string]{id: c}
+		}
+		var e *exampleVertex[string]
+		if _, ok := vertices[p]; !ok {
+			e = &exampleVertex[string]{id: p}
+			vertices[p] = e
+		} else {
+			e = vertices[p]
+		}
+		e.afters = append(e.afters, c)
+	}
+
+	sorted, _ := toposort.Sort(vertices)
+
+	fmt.Println(sorted)
 }
 ```
 
@@ -52,14 +76,11 @@ In this example, the `relations` map defines a set of dependencies where each ke
 If the graph contains cycles, the `Sort` function will return an error indicating the presence of a cycle. For example:
 
 ```go
-relations := map[string]string{
-    "Jonas": "Jonas",
-}
+_, err := toposort.Sort(map[string]*exampleVertex[string]{
+    "Jonas": {id: "Jonas", afters: []string{"Jonas"}},
+})
 
-_, err := toposort.Sort(relations)
-if err != nil {
-    fmt.Println("Error:", err)
-}
+fmt.Println(err.Error())
 ```
 
 **Output:**

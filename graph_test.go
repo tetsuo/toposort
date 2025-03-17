@@ -76,7 +76,23 @@ func TestGraph(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.desc, func(t *testing.T) {
-			sorted, err := toposort.Sort(tt.data)
+			vertices := make(map[string]*exampleVertex[string])
+
+			for c, p := range tt.data {
+				if _, ok := vertices[c]; !ok {
+					vertices[c] = &exampleVertex[string]{id: c}
+				}
+				var e *exampleVertex[string]
+				if _, ok := vertices[p]; !ok {
+					e = &exampleVertex[string]{id: p}
+					vertices[p] = e
+				} else {
+					e = vertices[p]
+				}
+				e.afters = append(e.afters, c)
+			}
+
+			sorted, err := toposort.Sort(vertices)
 			if tt.err == nil {
 				if err != nil {
 					t.Fatal(err)

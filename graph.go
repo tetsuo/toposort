@@ -3,6 +3,7 @@ package toposort
 import (
 	"errors"
 	"fmt"
+	"slices"
 )
 
 var (
@@ -12,13 +13,13 @@ var (
 	ErrMultipleRoots = errors.New("multiple roots")
 )
 
-type Vertex[K comparable] struct {
-	afters []K
-	id     K
+type Vertex[K comparable] interface {
+	Afters() []K
+	ID() K
 }
 
 // tsort sorts the given graph topologically.
-func tsort[K comparable](g map[K]*Vertex[K]) (sorted []K, recursive map[K]bool, recursion []K) {
+func tsort[K comparable, V Vertex[K]](g map[K]V) (sorted []K, recursive map[K]bool, recursion []K) {
 	sorted = []K{}
 	visited := make(map[K]bool)
 	recursive = make(map[K]bool) // keys caught in a recursive chain
@@ -33,8 +34,8 @@ func tsort[K comparable](g map[K]*Vertex[K]) (sorted []K, recursive map[K]bool, 
 		}
 		ancestors = append(ancestors, id)
 		visited[id] = true
-		for _, afterID := range vertex.afters {
-			if sliceContains(ancestors, afterID) {
+		for _, afterID := range vertex.Afters() {
+			if slices.Contains(ancestors, afterID) {
 				recursive[id] = true
 				for _, id := range ancestors {
 					recursive[id] = true
@@ -54,46 +55,32 @@ func tsort[K comparable](g map[K]*Vertex[K]) (sorted []K, recursive map[K]bool, 
 	return
 }
 
-type Graph[K comparable] struct {
-	data      map[K]*Vertex[K] // graph itself
-	sorted    []K              // toposorted keys
-	recursive map[K]bool       // recursive keys
-	recursion []K              // recursion paths
+type Graph[K comparable, V Vertex[K]] struct {
+	data      map[K]V    // graph itself
+	sorted    []K        // toposorted keys
+	recursive map[K]bool // recursive keys
+	recursion []K        // recursion paths
 }
 
-func Sort[K comparable](relations map[K]K) ([]K, error) {
-	vertices := make(map[K]*Vertex[K])
-
-	for c, p := range relations {
-		if _, ok := vertices[c]; !ok {
-			vertices[c] = &Vertex[K]{id: c}
-		}
-		if _, ok := vertices[p]; !ok {
-			vertices[p] = &Vertex[K]{id: p}
-		}
-		vertices[p].afters = append(vertices[p].afters, c)
-	}
-
-	g := new(Graph[K])
-	g.sorted, g.recursive, g.recursion = tsort(vertices)
-	g.data = vertices
-
-	if err := validateGraph(g); err != nil {
+func Sort[K comparable, V Vertex[K]](vertices map[K]V) ([]K, error) {
+	graph := new(Graph[K, V])
+	graph.sorted, graph.recursive, graph.recursion = tsort(vertices)
+	graph.data = vertices
+	if err := validateGraph(graph); err != nil {
 		return nil, err
 	}
-
-	return g.sorted, nil
+	return graph.sorted, nil
 }
 
 // validateGraph checks a graph for recursive paths and multiple root nodes.
-func validateGraph[K comparable](g *Graph[K]) (err MultiError) {
+func validateGraph[K comparable, V Vertex[K]](g *Graph[K, V]) (err MultiError) {
 	var visit func(id K)
 
 	length := 0
 
 	visit = func(id K) {
 		v := g.data[id]
-		for _, afterID := range v.afters {
+		for _, afterID := range v.Afters() {
 			length += 1
 			visit(afterID)
 		}
@@ -114,15 +101,15 @@ func validateGraph[K comparable](g *Graph[K]) (err MultiError) {
 		}
 	}
 
-	null := *(new(K))
+	var zero K
 
-	recursions, start, ko := [][]K{}, 0, null
+	recursions, start, ko := [][]K{}, 0, zero
 	for i, k := range g.recursion {
 		if k == ko {
 			recursions = append(recursions, g.recursion[start:i+1])
 			start = i + 1
-			ko = null
-		} else if ko == null {
+			ko = zero
+		} else if ko == zero {
 			ko = k
 		}
 	}
@@ -138,13 +125,4 @@ func validateGraph[K comparable](g *Graph[K]) (err MultiError) {
 	}
 
 	return
-}
-
-func sliceContains[K comparable](s []K, e K) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
