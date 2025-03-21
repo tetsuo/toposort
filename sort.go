@@ -15,14 +15,25 @@ type Vertex interface {
 
 // BFS performs an in-place topological sort using Kahn's Algorithm.
 // If a cycle is detected, it returns ErrCircular.
-func BFS[V Vertex](vertices []V, n int) error {
-	if n == 0 {
+func BFS[V Vertex](vertices []V, opts ...Option) error {
+	n := len(vertices)
+	if n < 2 {
 		return nil
 	}
 
-	inDegree := make([]int, n)
-	queue := make([]int, 0, n)
-	order := make([]int, 0, n)
+	cfg := config{}
+
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	if cfg.bp == nil {
+		cfg.bp = &bufferz{}
+	}
+
+	inDegree := cfg.bp.IntSlice(n, 0)
+	queue := cfg.bp.IntSlice(0, n)
+	order := cfg.bp.IntSlice(0, n)
 
 	// Compute in-degrees
 	for _, v := range vertices {
@@ -79,15 +90,26 @@ func BFS[V Vertex](vertices []V, n int) error {
 
 // DFS performs an in-place topological sort using a stack-based DFS.
 // If a cycle is detected, it returns ErrCircular.
-func DFS[V Vertex](vertices []V, n int) error {
-	if n == 0 {
+func DFS[V Vertex](vertices []V, opts ...Option) error {
+	n := len(vertices)
+	if n < 2 {
 		return nil
 	}
 
-	visited := make([]bool, n)
-	recStack := make([]bool, n)
-	order := make([]int, 0, n)
-	stack := make([]int, 0, n)
+	cfg := config{}
+
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	if cfg.bp == nil {
+		cfg.bp = &bufferz{}
+	}
+
+	visited := cfg.bp.BoolSlice(n, 0)
+	recStack := cfg.bp.BoolSlice(n, 0)
+	order := cfg.bp.IntSlice(0, n)
+	stack := cfg.bp.IntSlice(0, n)
 
 	// Iterate through all nodes
 	for i := range n {

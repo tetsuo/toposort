@@ -253,7 +253,7 @@ func TestSort(t *testing.T) {
 			for j := range 2 {
 				t.Run(fmt.Sprintf("graph-%d-%d", i, j), func(t *testing.T) {
 					vs := slices.Clone(tt.vs)
-					err := fn(vs, len(vs))
+					err := fn(vs)
 					if err != nil {
 						if tt.err != nil {
 							if !errors.Is(err, tt.err) {
