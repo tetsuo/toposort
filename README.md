@@ -18,9 +18,9 @@ Given edges:
 The graph looks like this:
 
 ```
-    5       4
-   / \     / \
-  2   0   0   1
+    5        4
+   / \      / \
+  2   0    0   1
    \
     3
      \
