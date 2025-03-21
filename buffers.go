@@ -5,16 +5,16 @@ type Buffers interface {
 	BoolSlice(int, int) []bool
 }
 
-type bufferz struct{}
+type buffers struct{}
 
-func (b *bufferz) IntSlice(size, capacity int) []int {
+func (b *buffers) IntSlice(size, capacity int) []int {
 	if capacity == 0 {
 		return make([]int, size)
 	}
 	return make([]int, size, capacity)
 }
 
-func (b *bufferz) BoolSlice(size, capacity int) []bool {
+func (b *buffers) BoolSlice(size, capacity int) []bool {
 	if capacity == 0 {
 		return make([]bool, size)
 	}

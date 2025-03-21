@@ -28,7 +28,7 @@ func BFS[V Vertex](vertices []V, opts ...Option) error {
 	}
 
 	if cfg.bp == nil {
-		cfg.bp = &bufferz{}
+		cfg.bp = &buffers{}
 	}
 
 	inDegree := cfg.bp.IntSlice(n, 0)
@@ -103,7 +103,7 @@ func DFS[V Vertex](vertices []V, opts ...Option) error {
 	}
 
 	if cfg.bp == nil {
-		cfg.bp = &bufferz{}
+		cfg.bp = &buffers{}
 	}
 
 	visited := cfg.bp.BoolSlice(n, 0)
